@@ -19,18 +19,18 @@ provider:
 functions:
   optimize:
     handler: optimize.handle
-    enviroment:
-      bucket: serverless
+    environment:
+      bucket: bkserverlesscaio
     events:
       - s3:
-          bucket: serverless
+          bucket: bkserverlesscaio
           event: s3:ObjectCreated:*
           rules:
             - prefix: uploads/
-            - sulffix: .jpg
+            - suffix: .jpg
       - s3:
-          bucket: serverless
+          bucket: bkserverlesscaio
           event: s3:ObjectCreated:*
           rules:
             - prefix: uploads/
-            - sulffix: .png
+            - suffix: .png

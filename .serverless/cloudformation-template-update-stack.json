@@ -71,10 +71,10 @@
         }
       }
     },
-    "HelloLogGroup": {
+    "OptimizeLogGroup": {
       "Type": "AWS::Logs::LogGroup",
       "Properties": {
-        "LogGroupName": "/aws/lambda/nodeless-dev-hello"
+        "LogGroupName": "/aws/lambda/nodeless-dev-optimize"
       }
     },
     "IamRoleLambdaExecution": {
@@ -133,6 +133,14 @@
                       "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/nodeless-dev*:*:*"
                     }
                   ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:GetObject",
+                    "s3:PutObject"
+                  ],
+                  "Resource": "arn:aws:s3:::*"
                 }
               ]
             }
@@ -154,20 +162,25 @@
         }
       }
     },
-    "HelloLambdaFunction": {
+    "OptimizeLambdaFunction": {
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/nodeless/dev/1622571966497-2021-06-01T18:26:06.497Z/nodeless.zip"
+          "S3Key": "serverless/nodeless/dev/1622585227242-2021-06-01T22:07:07.242Z/nodeless.zip"
         },
-        "Handler": "handler.hello",
+        "Handler": "optimize.handle",
         "Runtime": "nodejs12.x",
-        "FunctionName": "nodeless-dev-hello",
-        "MemorySize": 1024,
+        "FunctionName": "nodeless-dev-optimize",
+        "MemorySize": 256,
         "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "bucket": "bkserverlesscaio"
+          }
+        },
         "Role": {
           "Fn::GetAtt": [
             "IamRoleLambdaExecution",
@@ -176,17 +189,105 @@
         }
       },
       "DependsOn": [
-        "HelloLogGroup"
+        "OptimizeLogGroup"
       ]
     },
-    "HelloLambdaVersionSvdMCcjwosckE0UTldcB6Fbbb4VbIpUx3kLzJ0CnSM": {
+    "OptimizeLambdaVersionxbvmxlgxNTHsPcvhw1zi34DWlMU9P0hqHra2t9sNs": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
-          "Ref": "HelloLambdaFunction"
+          "Ref": "OptimizeLambdaFunction"
         },
-        "CodeSha256": "VfybelkkJD/2xQKsR6KwQXqA9g/LiTL0NtHOrnIVC8U="
+        "CodeSha256": "lHJKHdPlE82rKCIbDv8Uogeu65N+/UrV1LckuP76cBw="
+      }
+    },
+    "S3BucketBkserverlesscaio": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "bkserverlesscaio",
+        "NotificationConfiguration": {
+          "LambdaConfigurations": [
+            {
+              "Event": "s3:ObjectCreated:*",
+              "Function": {
+                "Fn::GetAtt": [
+                  "OptimizeLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Filter": {
+                "S3Key": {
+                  "Rules": [
+                    {
+                      "Name": "prefix",
+                      "Value": "uploads/"
+                    },
+                    {
+                      "Name": "suffix",
+                      "Value": ".jpg"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "Event": "s3:ObjectCreated:*",
+              "Function": {
+                "Fn::GetAtt": [
+                  "OptimizeLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Filter": {
+                "S3Key": {
+                  "Rules": [
+                    {
+                      "Name": "prefix",
+                      "Value": "uploads/"
+                    },
+                    {
+                      "Name": "suffix",
+                      "Value": ".png"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "DependsOn": [
+        "OptimizeLambdaPermissionBkserverlesscaioS3",
+        "OptimizeLambdaPermissionBkserverlesscaioS3"
+      ]
+    },
+    "OptimizeLambdaPermissionBkserverlesscaioS3": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "OptimizeLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "s3.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":s3:::bkserverlesscaio"
+            ]
+          ]
+        },
+        "SourceAccount": {
+          "Ref": "AWS::AccountId"
+        }
       }
     }
   },
@@ -199,13 +300,13 @@
         "Name": "sls-nodeless-dev-ServerlessDeploymentBucketName"
       }
     },
-    "HelloLambdaFunctionQualifiedArn": {
+    "OptimizeLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "HelloLambdaVersionSvdMCcjwosckE0UTldcB6Fbbb4VbIpUx3kLzJ0CnSM"
+        "Ref": "OptimizeLambdaVersionxbvmxlgxNTHsPcvhw1zi34DWlMU9P0hqHra2t9sNs"
       },
       "Export": {
-        "Name": "sls-nodeless-dev-HelloLambdaFunctionQualifiedArn"
+        "Name": "sls-nodeless-dev-OptimizeLambdaFunctionQualifiedArn"
       }
     }
   }
