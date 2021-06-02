@@ -12,7 +12,7 @@ module.exports.handle = async ({ Records: records }, context) => {
       const { key } = record.s3.object;
 
       const image = await S3.getObject({
-        Bucket: Process.env.bucket,
+        Bucket: process.env.bucket,
         Key: key,
       }).promise();
 
@@ -25,7 +25,7 @@ module.exports.handle = async ({ Records: records }, context) => {
         Body: optimized,
         Bucket: process.env.bucket,
         ContentType: 'image/jpeg',
-        Key: ´compressed/${basename(key, extname(key))}.jpg´
+        Key: `compressed/${basename(key, extname(key))}.jpg`
       }).promise()
 
     }));

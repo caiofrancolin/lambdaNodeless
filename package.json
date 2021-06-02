@@ -9,9 +9,8 @@
   },
   "devDependencies": {},
   "scripts": {
-    "predeploy": "npm install --plataform linux --arch=x64 --target=8.10.0 sharp",
-    "deploy": "serverless deploy -v",
-    "postdeploy": "npm install sharp"
+    "predeploy": "npm install --arch=x64 --platform=linux --target=8.10.0 sharp",
+    "deploy": "serverless deploy -v"
   },
   "repository": {
     "type": "git",
